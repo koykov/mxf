@@ -15,7 +15,14 @@ func NewImap(size int) *Imap {
 	return &m
 }
 
+func (m *Imap) Len() int {
+	return len(m.p)
+}
+
 func (m *Imap) Grow(size int) {
+	if size < 0 {
+		return
+	}
 	if m.p == nil {
 		m.p = make([]Identifier, size)
 	} else {
@@ -28,6 +35,9 @@ func (m *Imap) Grow(size int) {
 }
 
 func (m *Imap) Set(idx int, x Identifier) {
+	if idx >= len(m.p) {
+		m.Grow(idx * 2)
+	}
 	m.p[idx] = x
 }
 
