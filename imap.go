@@ -1,16 +1,24 @@
 package mxf
 
+type Status int
+
+const (
+	StatusOK Status = iota
+	StatusRestCollect
+)
+
 type Identifier interface {
 	GetId() int
 }
 
 type Imap struct {
-	p  []Identifier
-	lk uint32
+	s   Status
+	p   []Identifier
+	cid map[int]bool
 }
 
 func NewImap(size int) *Imap {
-	m := Imap{}
+	m := Imap{s: StatusOK}
 	m.Grow(size)
 	return &m
 }
@@ -34,15 +42,45 @@ func (m *Imap) Grow(size int) {
 	}
 }
 
-func (m *Imap) Set(idx int, x Identifier) {
+func (m *Imap) Set(idx int, x Identifier) *Imap {
 	if idx >= len(m.p) {
 		m.Grow(idx * 2)
 	}
 	m.p[idx] = x
+	if m.s == StatusRestCollect {
+		m.cid[idx] = true
+	}
+	return m
 }
 
 func (m *Imap) BulkSet(l []Identifier) {
-	m.p = append(m.p[:0], l...)
+	m.RestCollect()
+
+	_ = l[len(l)]
+	for len(l) > 8 {
+		m.Set(l[0].GetId(), l[0]).Set(l[1].GetId(), l[1]).Set(l[2].GetId(), l[2]).Set(l[3].GetId(), l[3]).
+			Set(l[4].GetId(), l[4]).Set(l[5].GetId(), l[5]).Set(l[6].GetId(), l[6]).Set(l[7].GetId(), l[7])
+		l = l[8:]
+	}
+	for i := range l {
+		m.Set(l[i].GetId(), l[i])
+	}
+
+	m.RestClear()
+}
+
+func (m *Imap) RestCollect() {
+	for k := range m.cid {
+		delete(m.cid, k)
+	}
+	m.s = StatusRestCollect
+}
+
+func (m *Imap) RestClear() {
+	for i := range m.cid {
+		m.p[i] = nil
+	}
+	m.s = StatusOK
 }
 
 func (m *Imap) Get(idx int) Identifier {
