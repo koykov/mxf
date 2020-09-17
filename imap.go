@@ -41,6 +41,10 @@ func (m *Imap) Set(idx int, x Identifier) {
 	m.p[idx] = x
 }
 
+func (m *Imap) BulkSet(l []Identifier) {
+	m.p = append(m.p[:0], l...)
+}
+
 func (m *Imap) Get(idx int) Identifier {
 	if idx < len(m.p) {
 		return m.p[idx]
