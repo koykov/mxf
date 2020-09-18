@@ -18,7 +18,7 @@ func NewTestImap(id int) *TestImap {
 	return &m
 }
 
-func (m *TestImap) GetId() int {
+func (m *TestImap) GetIid() int {
 	return m.id
 }
 

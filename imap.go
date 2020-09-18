@@ -8,7 +8,7 @@ const (
 )
 
 type Identifier interface {
-	GetId() int
+	GetIid() int
 }
 
 type Imap struct {
@@ -42,7 +42,8 @@ func (m *Imap) Grow(size int) {
 	}
 }
 
-func (m *Imap) Set(idx int, x Identifier) *Imap {
+func (m *Imap) Set(x Identifier) *Imap {
+	idx := x.GetIid()
 	if idx >= len(m.p) {
 		m.Grow(idx * 2)
 	}
@@ -58,12 +59,11 @@ func (m *Imap) BulkSet(l []Identifier) {
 
 	_ = l[len(l)]
 	for len(l) > 8 {
-		m.Set(l[0].GetId(), l[0]).Set(l[1].GetId(), l[1]).Set(l[2].GetId(), l[2]).Set(l[3].GetId(), l[3]).
-			Set(l[4].GetId(), l[4]).Set(l[5].GetId(), l[5]).Set(l[6].GetId(), l[6]).Set(l[7].GetId(), l[7])
+		m.Set(l[0]).Set(l[1]).Set(l[2]).Set(l[3]).Set(l[4]).Set(l[5]).Set(l[6]).Set(l[7])
 		l = l[8:]
 	}
 	for i := range l {
-		m.Set(l[i].GetId(), l[i])
+		m.Set(l[i])
 	}
 
 	m.RestClear()
