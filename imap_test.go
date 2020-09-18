@@ -25,7 +25,7 @@ func (m *TestImap) GetIid() int {
 func TestNewImap(t *testing.T) {
 	m := NewImap(10)
 	for i := 0; i < 10; i++ {
-		m.Set(i, NewTestImap(i))
+		m.Set(NewTestImap(i))
 	}
 }
 
@@ -33,14 +33,14 @@ func BenchmarkImap_Set(b *testing.B) {
 	m := NewImap(10000)
 	b.ReportAllocs()
 	for i := 0; i < b.N; i++ {
-		m.Set(i, NewTestImap(i+1))
+		m.Set(NewTestImap(i + 1))
 	}
 }
 
 func BenchmarkImap_Get(b *testing.B) {
 	m := NewImap(10000)
 	for i := 0; i < 1e7; i++ {
-		m.Set(i, NewTestImap(i+1))
+		m.Set(NewTestImap(i + 1))
 	}
 	b.ReportAllocs()
 	b.ResetTimer()
