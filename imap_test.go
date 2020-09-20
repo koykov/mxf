@@ -22,8 +22,8 @@ func (m *TestImap) GetIid() int {
 	return m.id
 }
 
-func (m *TestImap) randomize() *TestImap {
-	m.id = rand.Intn(100)
+func (m *TestImap) randomize(max int) *TestImap {
+	m.id = rand.Intn(max)
 	m.payload = rand.Uint64()
 	return m
 }
@@ -90,10 +90,9 @@ func BenchmarkImap_Transaction(b *testing.B) {
 		m.Begin()
 
 		for j := 0; j < 100; j++ {
-			m.Set(c[j].randomize())
+			m.Set(c[j].randomize(1000))
 		}
 
 		m.Commit()
 	}
-
 }
