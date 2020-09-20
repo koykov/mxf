@@ -43,20 +43,20 @@ func (m *Imap) Grow(size int) {
 }
 
 func (m *Imap) Set(x Identifier) *Imap {
-	idx := x.GetIid()
-	if idx >= len(m.p) {
-		m.Grow(idx * 2)
+	iid := x.GetIid()
+	if iid >= len(m.p) {
+		m.Grow(iid * 2)
 	}
-	m.p[idx] = x
+	m.p[iid] = x
 	if m.s == StatusTransaction {
-		m.cid[idx] = true
+		m.cacheSet(iid)
 	}
 	return m
 }
 
-func (m *Imap) Get(idx int) Identifier {
-	if idx < len(m.p) {
-		return m.p[idx]
+func (m *Imap) Get(iid int) Identifier {
+	if iid < len(m.p) {
+		return m.p[iid]
 	}
 	return nil
 }
@@ -103,12 +103,19 @@ func (m *Imap) Commit() bool {
 	return true
 }
 
-func (m *Imap) clear(idx int) *Imap {
-	if idx < len(m.p) || m.p[idx] == nil {
+func (m *Imap) clear(iid int) *Imap {
+	if iid >= len(m.p) || m.p[iid] == nil {
 		return m
 	}
-	if _, ok := m.cid[idx]; !ok {
-		m.p[idx] = nil
+	if _, ok := m.cid[iid]; !ok {
+		m.p[iid] = nil
 	}
 	return m
+}
+
+func (m *Imap) cacheSet(iid int) {
+	if m.cid == nil {
+		m.cid = make(map[int]bool, len(m.p))
+	}
+	m.cid[iid] = true
 }
