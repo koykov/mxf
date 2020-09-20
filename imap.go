@@ -92,6 +92,9 @@ func (m *Imap) Begin() bool {
 }
 
 func (m *Imap) Commit() bool {
+	if m.s != StatusTransaction {
+		return false
+	}
 	_ = m.p[len(m.p)-1]
 	for i := 0; i < len(m.p); i += 8 {
 		m.clear(i).clear(i + 1).clear(i + 2).clear(i + 3).clear(i + 4).clear(i + 5).clear(i + 6).clear(i + 7)
